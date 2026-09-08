@@ -48,7 +48,6 @@ async function getHEM(income, dependents) {
       throw new Error("Something went wrong");
     }
     const data = await response.json();
-    console.log("Hem is " + data.hem)
     return data.hem;
   } catch (error) {
     console.log(error);
