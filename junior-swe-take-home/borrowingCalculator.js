@@ -15,6 +15,7 @@ const INTEREST_RATE = 7.0; // 7.0% baseline interest rate
 const ASSESSMENT_RATE_BUFFER = 3.0; // 3.0% buffer added to interest rates
 
 async function getTax(income) {
+    
   try {
     const response = await fetch(
       `http://localhost:3000/api/tax?income=${income}`,
@@ -92,6 +93,8 @@ async function calculateBorrowingPower(
   const maxLoanAmount =
     maxMonthlyRepayment *
     ((1 - Math.pow(1 + monthlyRate, -LOAN_TERM_MONTHS)) / monthlyRate);
+    console.log("Max loan: " + maxLoanAmount);
+    console.log("Max loan toFixed: " + Number(maxLoanAmount.toFixed(2)));
 
   return {
     maxLoanAmount: Number(maxLoanAmount.toFixed(2)),
