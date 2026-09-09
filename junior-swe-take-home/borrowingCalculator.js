@@ -13,47 +13,8 @@
 const LOAN_TERM_MONTHS = 360; // 30 Years
 const INTEREST_RATE = 7.0; // 7.0% baseline interest rate
 const ASSESSMENT_RATE_BUFFER = 3.0; // 3.0% buffer added to interest rates
-
-async function getTax(income) {
-    
-  try {
-    const response = await fetch(
-      `http://localhost:3000/api/tax?income=${income}`,
-      {
-        headers: {
-          Authorization: "Bearer pat_abcdefghijklmnopqrstuvwxyz0123456789",
-        },
-      },
-    );
-    if (!response.ok) {
-      throw new Error("Something went wrong");
-    }
-    const data = await response.json();
-    return data.tax;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function getHEM(income, dependents) {
-  try {
-    const response = await fetch(
-      `http://localhost:3000/api/hem?income=${income}&dependents=${dependents}`,
-      {
-        headers: {
-          Authorization: "Bearer pat_abcdefghijklmnopqrstuvwxyz0123456789",
-        },
-      },
-    );
-     if (!response.ok) {
-      throw new Error("Something went wrong");
-    }
-    const data = await response.json();
-    return data.hem;
-  } catch (error) {
-    console.log(error);
-  }
-}
+const {getTax} = require("./services/getTax");
+const {getHem} = require("./services/getHem");
 
 /**
  * Calculates the total borrowing power amount and the monthly repayment configuration
@@ -70,7 +31,7 @@ async function calculateBorrowingPower(
   const netMonthlyIncome = (income - annualTax) / 12;
 
   // 2. Determine living expenses (User declared expenses vs HEM baseline, whichever is higher)
-  const baselineHEM = await getHEM(income, dependents);
+  const baselineHEM = await getHem(income, dependents);
   const totalLivingExpenses = Math.max(expenses, baselineHEM);
 
   // 3. Calculate credit card liability (~3% of total limits)
