@@ -18,8 +18,23 @@ async function calculateBorrowingPower(
   creditLimits,
   annualAssessmentRate,
 ) {
-  const annualTax = await getTax(income);
-  const baselineHEM = await getHem(income, dependents);
+  let annualTax;
+  try {
+    annualTax = await getTax(income);
+  } catch (err) {
+    throw new Error(
+      `Tax lookup failed (${err.message})`,
+    );
+  }
+
+  let baselineHEM;
+  try {
+    baselineHEM = await getHem(income, dependents);
+  } catch (error) {
+    throw new Error(
+      `Hem lookup failed (${err.message})`,
+    );
+  }
 
   //   // 1. Calculate Net Monthly Income after tax deductions
   const netMonthlyIncome = calculateNetMonthlyIncome(annualTax, income);
