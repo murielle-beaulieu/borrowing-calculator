@@ -15,12 +15,12 @@ function calculateMaxMonthlyRepayment(netMonthlyIncome, totalLivingExpenses, cre
 }
 
 function calculateMonthlyRate(annualAssessmentRate){
-    return annualAssessmentRate / 100 / 12
+    return (annualAssessmentRate / 100) / 12
 }
 
 function calculateMaxLoanAmount( maxMonthlyRepayment, LOAN_TERM_MONTHS, monthlyRate) {
     return maxMonthlyRepayment *
-    ((1 - Math.pow(1 + monthlyRate, -LOAN_TERM_MONTHS)) / monthlyRate);
+    ((1 - Math.pow(1 + monthlyRate, - LOAN_TERM_MONTHS)) / monthlyRate);
 }
 
 module.exports = { calculateNetMonthlyIncome, calculateTotalLivingExpenses, calculateCreditCardLiability, calculateMonthlyRate, calculateMaxMonthlyRepayment, calculateMaxLoanAmount };
