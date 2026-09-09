@@ -1,14 +1,14 @@
 const { getTax } = require("../services/getTax");
 const { getHem } = require("../services/getHem");
-const {LOAN_TERM_MONTHS} = require("../constants/constants")
+const { LOAN_TERM_MONTHS } = require("../services/constants/constants");
 
 const {
   calculateNetMonthlyIncome,
   calculateTotalLivingExpenses,
-  calculateCreditLimits,
+  calculateCreditCardLiability,
   calculateMaxMonthlyRepayment,
   calculateMonthlyRate,
-  calculateMaxLoanAmount
+  calculateMaxLoanAmount,
 } = require("./calculatorUtils");
 
 async function calculateBorrowingPower(
@@ -22,19 +22,23 @@ async function calculateBorrowingPower(
   const baselineHEM = await getHem(income, dependents);
 
   //   // 1. Calculate Net Monthly Income after tax deductions
-  const netMonthlyIncome = await calculateNetMonthlyIncome(annualTax, income);
+  const netMonthlyIncome = calculateNetMonthlyIncome(annualTax, income);
 
   // 2. Determine living expenses (User declared expenses vs HEM baseline, whichever is higher)
-  const totalLivingExpenses = await calculateTotalLivingExpenses(
+  const totalLivingExpenses = calculateTotalLivingExpenses(
     baselineHEM,
     expenses,
   );
 
   // 3. Calculate credit card liability (~3% of total limits)
-  const creditCardLiability = calculateCreditLimits(creditLimits);
+  const creditCardLiability = calculateCreditCardLiability(creditLimits);
 
   // 4. Calculate monthly repayment capacity
-  const maxMonthlyRepayment = calculateMaxMonthlyRepayment(netMonthlyIncome, totalLivingExpenses, creditCardLiability);
+  const maxMonthlyRepayment = calculateMaxMonthlyRepayment(
+    netMonthlyIncome,
+    totalLivingExpenses,
+    creditCardLiability,
+  );
 
   // Return early if user cannot afford a loan at all
   if (maxMonthlyRepayment <= 0) {
@@ -45,7 +49,11 @@ async function calculateBorrowingPower(
   const monthlyRate = calculateMonthlyRate(annualAssessmentRate);
 
   // 6. Calculate maximum borrowing power:
-  const maxLoanAmount = calculateMaxLoanAmount(maxMonthlyRepayment, LOAN_TERM_MONTHS, monthlyRate);
+  const maxLoanAmount = calculateMaxLoanAmount(
+    maxMonthlyRepayment,
+    LOAN_TERM_MONTHS,
+    monthlyRate,
+  );
 
   return {
     maxLoanAmount: Number(maxLoanAmount.toFixed(2)),
