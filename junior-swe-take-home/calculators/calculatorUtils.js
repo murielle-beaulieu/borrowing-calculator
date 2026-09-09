@@ -1,18 +1,30 @@
-const { getTax } = require("../services/getTax");
-const { getHem } = require("../services/getHem");
-
-async function calculateNetMonthlyIncome(income) {
+function calculateNetMonthlyIncome(annualTax, income) {
   // 1. Calculate Net Monthly Income after tax deductions
-  const annualTax = await getTax(income);
   const netMonthlyIncome = (income - annualTax) / 12;
   return netMonthlyIncome;
 }
 
-async function calculateTotalLivingExpenses(income, dependents, expenses) {
+function calculateTotalLivingExpenses(baselineHEM, expenses) {
   // 2. Determine living expenses (User declared expenses vs HEM baseline, whichever is higher)
-  const baselineHEM = await getHem(income, dependents);
-  const totalLivingExpenses = Math.max(expenses, baselineHEM);
-  return totalLivingExpenses;
+  return Math.max(expenses, baselineHEM);
 }
 
-module.exports = { calculateNetMonthlyIncome, calculateTotalLivingExpenses };
+function calculateCreditLimits(creditLimits) {
+    return creditLimits * 0.03
+}
+
+function calculateMaxMonthlyRepayment(netMonthlyIncome, totalLivingExpenses, creditCardLiability) {
+    return netMonthlyIncome - totalLivingExpenses - creditCardLiability;
+}
+
+function calculateMonthlyRate(annualAssessmentRate){
+    return annualAssessmentRate / 100 / 12
+}
+
+function calculateMaxLoanAmount( maxMonthlyRepayment, LOAN_TERM_MONTHS, monthlyRate) {
+    return maxMonthlyRepayment *
+    ((1 - Math.pow(1 + monthlyRate, -LOAN_TERM_MONTHS)) / monthlyRate);
+}
+
+module.exports = { calculateNetMonthlyIncome, calculateTotalLivingExpenses, calculateCreditLimits, calculateMonthlyRate, calculateMaxMonthlyRepayment, calculateMaxLoanAmount };
+

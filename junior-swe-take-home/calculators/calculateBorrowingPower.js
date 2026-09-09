@@ -1,8 +1,14 @@
-const LOAN_TERM_MONTHS = 360; // 30 Years
+const { getTax } = require("../services/getTax");
+const { getHem } = require("../services/getHem");
+const {LOAN_TERM_MONTHS} = require("../constants/constants")
 
 const {
   calculateNetMonthlyIncome,
   calculateTotalLivingExpenses,
+  calculateCreditLimits,
+  calculateMaxMonthlyRepayment,
+  calculateMonthlyRate,
+  calculateMaxLoanAmount
 } = require("./calculatorUtils");
 
 async function calculateBorrowingPower(
@@ -12,22 +18,23 @@ async function calculateBorrowingPower(
   creditLimits,
   annualAssessmentRate,
 ) {
+  const annualTax = await getTax(income);
+  const baselineHEM = await getHem(income, dependents);
+
   //   // 1. Calculate Net Monthly Income after tax deductions
-  const netMonthlyIncome = await calculateNetMonthlyIncome(income);
+  const netMonthlyIncome = await calculateNetMonthlyIncome(annualTax, income);
 
   // 2. Determine living expenses (User declared expenses vs HEM baseline, whichever is higher)
   const totalLivingExpenses = await calculateTotalLivingExpenses(
-    income,
-    dependents,
+    baselineHEM,
     expenses,
   );
 
   // 3. Calculate credit card liability (~3% of total limits)
-  const creditCardLiability = creditLimits * 0.03;
+  const creditCardLiability = calculateCreditLimits(creditLimits);
 
   // 4. Calculate monthly repayment capacity
-  const maxMonthlyRepayment =
-    netMonthlyIncome - totalLivingExpenses - creditCardLiability;
+  const maxMonthlyRepayment = calculateMaxMonthlyRepayment(netMonthlyIncome, totalLivingExpenses, creditCardLiability);
 
   // Return early if user cannot afford a loan at all
   if (maxMonthlyRepayment <= 0) {
@@ -35,15 +42,10 @@ async function calculateBorrowingPower(
   }
 
   // 5. Calculate the monthly interest rate
-  const monthlyRate = annualAssessmentRate / 100 / 12;
+  const monthlyRate = calculateMonthlyRate(annualAssessmentRate);
 
-  // 6. Calculate maximum borrowing power using the following formula:
-  // P = M * (1 - (1 + R)^-N) / R
-  const maxLoanAmount =
-    maxMonthlyRepayment *
-    ((1 - Math.pow(1 + monthlyRate, -LOAN_TERM_MONTHS)) / monthlyRate);
-  console.log("Max loan: " + maxLoanAmount);
-  console.log("Max loan toFixed: " + Number(maxLoanAmount.toFixed(2)));
+  // 6. Calculate maximum borrowing power:
+  const maxLoanAmount = calculateMaxLoanAmount(maxMonthlyRepayment, LOAN_TERM_MONTHS, monthlyRate);
 
   return {
     maxLoanAmount: Number(maxLoanAmount.toFixed(2)),

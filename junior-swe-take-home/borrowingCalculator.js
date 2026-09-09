@@ -1,20 +1,9 @@
 /**
  * Borrowing Power Calculator
- *
- * Gen's incomplete prototype.
- * This currently calculates what a user can borrow over 30 years.
- * Currently this code uses placeholder methods for Tax and HEM values.
- *
- * TODO: Refactor the code to pull Tax and HEM values from an API call.
- * A server.js has been provided to supply these values.
  */
 
-// Global constant for mortgage simulation
-const LOAN_TERM_MONTHS = 360; // 30 Years
-const INTEREST_RATE = 7.0; // 7.0% baseline interest rate
-const ASSESSMENT_RATE_BUFFER = 3.0; // 3.0% buffer added to interest rates
-
 const {calculateBorrowingPower} = require("./calculators/calculateBorrowingPower")
+const {INTEREST_RATE, ASSESSMENT_RATE_BUFFER} = require("./constants/constants")
 
 function runConsoleMode() {
   const readline = require("readline");
