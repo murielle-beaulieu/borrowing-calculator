@@ -3,7 +3,7 @@
  */
 
 const {calculateBorrowingPower} = require("./calculators/calculateBorrowingPower")
-const {INTEREST_RATE, ASSESSMENT_RATE_BUFFER} = require("./services/constants/constants")
+const {INTEREST_RATE, ASSESSMENT_RATE_BUFFER} = require("./constants/constants")
 
 function runConsoleMode() {
   const readline = require("readline");

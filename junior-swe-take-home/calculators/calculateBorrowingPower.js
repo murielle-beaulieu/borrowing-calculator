@@ -1,6 +1,6 @@
 const { getTax } = require("../services/getTax");
 const { getHem } = require("../services/getHem");
-const { LOAN_TERM_MONTHS } = require("../services/constants/constants");
+const { LOAN_TERM_MONTHS } = require("../constants/constants");
 
 const {
   calculateNetMonthlyIncome,
